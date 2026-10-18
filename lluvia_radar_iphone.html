@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081426">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lluvia Radar">
+<title>Lluvia Radar</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#071321;--panel:#101f32;--panel2:#15283d;--text:#f3f7fc;--muted:#9eb0c5;--accent:#50d5f5;--line:#24384e;--good:#5ee0b0;--warn:#ffca67;--bad:#ff6e7a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#122b47 0,#071321 55%);color:var(--text);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:env(safe-area-inset-top) 0 calc(82px + env(safe-area-inset-bottom));}
+header{padding:22px 18px 12px;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-size:23px;font-weight:800;letter-spacing:-.6px}.brand span{color:var(--accent)}.sub{font-size:12px;color:var(--muted);margin-top:4px}.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;padding:11px;font-size:18px}
+main{padding:0 14px;max-width:760px;margin:auto}.page{display:none}.page.active{display:block}.card{background:linear-gradient(145deg,rgba(21,40,61,.96),rgba(13,29,47,.96));border:1px solid var(--line);border-radius:22px;padding:16px;margin:10px 0;box-shadow:0 10px 28px #0002}.eyebrow{font-size:11px;letter-spacing:1.1px;text-transform:uppercase;color:var(--muted);font-weight:700}.big{font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin:9px 0 4px}.unit{font-size:16px;color:var(--muted);font-weight:600;letter-spacing:0}.status{display:inline-flex;align-items:center;gap:7px;border-radius:99px;padding:7px 10px;background:#102f40;color:#7fe3fa;font-size:12px;font-weight:700}.dot{width:7px;height:7px;border-radius:50%;background:var(--good);display:inline-block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.metric{padding:13px;border-radius:16px;background:#0a1929;border:1px solid #20364c;min-width:0}.metric .v{font-size:23px;font-weight:750;margin-top:8px}.metric .k{font-size:12px;color:var(--muted)}.metric small{font-size:11px;color:var(--muted)}.sectiontitle{font-size:17px;font-weight:750;margin:20px 2px 8px}.muted{color:var(--muted)}.tiny{font-size:11px;color:var(--muted);line-height:1.45}.row{display:flex;align-items:center;justify-content:space-between;gap:12px}.btn{border:0;border-radius:13px;background:var(--accent);color:#062032;padding:12px 14px;font-weight:800;cursor:pointer}.btn.secondary{background:#1b344c;color:var(--text);border:1px solid var(--line)}.btnrow{display:flex;gap:8px;flex-wrap:wrap}.btnrow .btn{flex:1}.input{width:100%;background:#081727;border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--text);font-size:15px;margin:6px 0 12px}.label{font-size:12px;color:var(--muted);display:block}.mapwrap{overflow:hidden;border-radius:18px;border:1px solid var(--line)}#map{height:420px;background:#13253a}.mapcaption{padding:10px 12px;background:#0a1929;font-size:12px;color:var(--muted);display:flex;justify-content:space-between;gap:8px}.tabs{position:fixed;bottom:0;left:0;right:0;padding:9px 7px calc(9px + env(safe-area-inset-bottom));background:rgba(5,15,27,.96);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:1000}.tab{border:0;background:none;color:#8298b1;font-size:10px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:5px}.tab strong{font-size:20px;font-weight:500}.tab.active{color:var(--accent)}.chart{display:flex;align-items:end;gap:5px;height:130px;padding:8px 0 0}.barcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:end;height:100%;gap:5px;min-width:0}.bar{width:100%;max-width:22px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#5bdcff,#2376df);min-height:2px}.barcol span{font-size:9px;color:var(--muted);white-space:nowrap}.barcol b{font-size:9px;font-weight:600}.forecastlist{display:flex;flex-direction:column;gap:0}.frow{display:grid;grid-template-columns:52px 1fr 66px;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}.frow:last-child{border:0}.pill{padding:5px 8px;border-radius:8px;background:#18334a;font-size:11px;text-align:center}.notice{border-left:3px solid var(--warn);padding:10px 12px;background:#2a2519;border-radius:0 12px 12px 0;font-size:12px;line-height:1.5;color:#ffe2a4}.goodnotice{border-left-color:var(--good);background:#102b2a;color:#a7f3d0}.error{color:#ffadb4}.loading{opacity:.7}.switchrow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}input[type=checkbox]{accent-color:var(--accent);width:20px;height:20px}canvas{width:100%;height:150px}.footer{font-size:10px;color:#8196ad;line-height:1.5;margin:16px 4px}
+@media(min-width:600px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.big{font-size:58px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">🌧️ Lluvia <span>Radar</span></div><div class="sub" id="placeLabel">Valencia · España</div></div><button class="iconbtn" id="refreshBtn" aria-label="Actualizar">↻</button></header>
+<main>
+<section class="page active" id="home">
+<div class="card">
+<div class="row"><span class="eyebrow">Intensidad estimada · modelo horario</span><span class="status" id="weatherStatus"><i class="dot"></i> Consultando…</span></div>
+<div class="big"><span id="currentRate">—</span><span class="unit"> mm/h</span></div>
+<div class="muted" id="rainDescription">Consultando las condiciones actuales…</div>
+<div class="row" style="margin-top:18px"><span class="tiny">Última consulta</span><span class="tiny" id="updatedAt">—</span></div>
+</div>
+<div class="sectiontitle">Acumulación de lluvia</div>
+<div class="grid">
+<div class="metric"><div class="k">Última hora</div><div class="v" id="acc1">— <small>l/m²</small></div></div>
+<div class="metric"><div class="k">Últimas 3 h</div><div class="v" id="acc3">— <small>l/m²</small></div></div>
+<div class="metric"><div class="k">Últimas 6 h</div><div class="v" id="acc6">— <small>l/m²</small></div><small>Estimación/modelo si existe</small></div>
+<div class="metric"><div class="k">Últimas 24 h</div><div class="v" id="acc24">— <small>l/m²</small></div><small>Estimación/modelo si existe</small></div>
+</div>
+<div class="sectiontitle">Próximas horas</div>
+<div class="grid">
+<div class="metric"><div class="k">Próximos 15 min</div><div class="v" id="next15">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próximos 30 min</div><div class="v" id="next30">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próxima hora</div><div class="v" id="next60">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próximas 2 h</div><div class="v" id="next120">—</div><small>mm · l/m²</small></div>
+</div>
+<div class="card"><div class="row"><div><div class="eyebrow">Condiciones</div><div class="muted tiny" style="margin-top:5px">Datos de previsión para el punto seleccionado</div></div></div><div class="grid" style="margin-top:12px">
+<div class="metric"><div class="k">🌡️ Temperatura</div><div class="v" id="temp">—</div></div>
+<div class="metric"><div class="k">💧 Humedad</div><div class="v" id="humidity">—</div></div>
+<div class="metric"><div class="k">💨 Viento</div><div class="v" id="wind">—</div></div>
+<div class="metric"><div class="k">🌬️ Rachas</div><div class="v" id="gust">—</div></div>
+<div class="metric"><div class="k">🧭 Dirección viento</div><div class="v" id="winddir">—</div></div>
+<div class="metric"><div class="k">☔ Prob. lluvia</div><div class="v" id="prob">—</div></div>
+</div></div>
+<div class="notice">Importante: la intensidad y los acumulados de esta pantalla proceden de un modelo meteorológico, no de un pluviómetro instalado en tu calle. La precisión a escala local puede variar.</div>
+</section>
+<section class="page" id="radar">
+<div class="card"><div class="row"><div><div class="eyebrow">Radar de precipitación</div><div class="muted tiny" style="margin-top:5px">Ecos de radar · animación disponible si el servicio la ofrece</div></div><button class="btn secondary" id="locateBtn">⌖ Mi zona</button></div></div>
+<div class="mapwrap"><div id="map"></div><div class="mapcaption"><span id="radarTime">Cargando radar…</span><span>Fuente: RainViewer</span></div></div>
+<div class="card"><div class="row"><span class="eyebrow">Animación radar</span><span class="tiny" id="frameLabel">—</span></div><input id="radarSlider" type="range" min="0" max="0" value="0" style="width:100%;margin:16px 0"><div class="btnrow"><button class="btn secondary" id="prevFrame">◀ Anterior</button><button class="btn" id="playRadar">▶ Reproducir</button><button class="btn secondary" id="nextFrame">Siguiente ▶</button></div><p class="tiny">El radar muestra ecos de precipitación, no una medición exacta de litros en tu ubicación. La extrapolación del movimiento no garantiza dónde ni cuánto lloverá.</p></div>
+</section>
+<section class="page" id="forecast">
+<div class="card"><div class="eyebrow">Previsión de precipitación</div><div class="sectiontitle" style="margin-top:8px">Lluvia por hora</div><div class="tiny">Previsión del modelo meteorológico. La lluvia acumulada se expresa en mm, equivalentes a l/m².</div><div class="chart" id="rainChart"></div></div>
+<div class="card"><div class="row"><div class="eyebrow">Próximas 24 horas</div><span class="tiny">Precipitación / probabilidad</span></div><div class="forecastlist" id="hourlyList"></div></div>
+<div class="card"><div class="eyebrow">Resumen de acumulación prevista</div><div class="grid" style="margin-top:12px">
+<div class="metric"><div class="k">Próximas 3 h</div><div class="v" id="f3">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próximas 6 h</div><div class="v" id="f6">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próximas 12 h</div><div class="v" id="f12">—</div><small>mm · l/m²</small></div>
+<div class="metric"><div class="k">Próximas 24 h</div><div class="v" id="f24">—</div><small>mm · l/m²</small></div>
+</div></div>
+</section>
+<section class="page" id="storms">
+<div class="card"><div class="eyebrow">Vigilancia de tormentas</div><div class="big" style="font-size:30px;letter-spacing:-.8px">Seguimiento disponible</div><p class="muted">El radar puede ayudar a observar bandas de precipitación próximas. Esta primera versión no dispone de una fuente independiente de rayos ni calcula automáticamente la trayectoria exacta de una célula tormentosa.</p><div id="stormSummary" class="notice">Cargando previsión…</div></div>
+<div class="card"><div class="eyebrow">Señales meteorológicas</div><div class="forecastlist" id="stormDetails"><div class="frow"><span>⚡</span><span>Actividad eléctrica</span><span class="pill">Sin fuente</span></div><div class="frow"><span>🧊</span><span>Granizo</span><span class="pill">No verificado</span></div><div class="frow"><span>🌧️</span><span>Lluvia intensa</span><span class="pill">Pendiente</span></div></div></div>
+<div class="notice">Para alertas oficiales de España se puede conectar AEMET OpenData. Requiere una clave API y una configuración segura; no se incluye una clave inventada.</div>
+</section>
+<section class="page" id="settings">
+<div class="card"><div class="eyebrow">Ubicación</div><label class="label" for="cityInput">Nombre de la localidad</label><input class="input" id="cityInput" placeholder="Ej. Valencia, Aldaia, Torrent"><div class="btnrow"><button class="btn" id="searchCity">Buscar localidad</button><button class="btn secondary" id="useLocation">Usar GPS</button></div><p class="tiny" id="locationMsg">Ubicación inicial: Valencia. Puedes cambiarla cuando quieras.</p></div>
+<div class="card"><div class="eyebrow">Ubicaciones guardadas</div><div id="favorites"></div><div class="btnrow"><button class="btn secondary" id="saveFavorite">☆ Guardar ubicación actual</button></div></div>
+<div class="card"><div class="eyebrow">Alertas locales</div><div class="switchrow"><div><b>Intensidad superior a 10 mm/h</b><div class="tiny">Solo con una fuente que permita evaluarla</div></div><input type="checkbox" id="alert10"></div><div class="switchrow"><div><b>Intensidad superior a 20 mm/h</b></div><input type="checkbox" id="alert20"></div><div class="switchrow"><div><b>Intensidad superior a 30 mm/h</b></div><input type="checkbox" id="alert30"></div><div class="switchrow"><div><b>Intensidad superior a 50 mm/h</b></div><input type="checkbox" id="alert50"></div><p class="tiny">En esta versión, estos controles guardan preferencias en el dispositivo, pero no generan notificaciones push en segundo plano. Para eso se necesita una PWA publicada por HTTPS con servicio de notificaciones y, normalmente, un servidor.</p></div>
+<div class="card"><div class="eyebrow">Fuentes y transparencia</div><p class="tiny">• Open-Meteo: previsión y variables meteorológicas.<br>• RainViewer: mosaicos de radar y marcas de tiempo.<br>• AEMET OpenData: avisos oficiales, pendiente de configurar una API key.<br><br>Las condiciones de uso de cada proveedor deben revisarse antes de distribuir públicamente la aplicación.</p><div class="btnrow"><button class="btn secondary" id="refreshAll">Actualizar datos</button><button class="btn secondary" id="resetPlace">Restablecer Valencia</button></div></div>
+<div class="footer">Lluvia Radar · Prototipo funcional conectado a servicios públicos. Necesita conexión a Internet. Los datos meteorológicos no sustituyen los avisos oficiales ni garantizan predicciones a escala de calle.</div>
+</section>
+</main>
+<nav class="tabs">
+<button class="tab active" data-page="home"><strong>⌂</strong>Inicio</button>
+<button class="tab" data-page="radar"><strong>◉</strong>Radar</button>
+<button class="tab" data-page="forecast"><strong>▥</strong>Previsión</button>
+<button class="tab" data-page="storms"><strong>⚡</strong>Tormentas</button>
+<button class="tab" data-page="settings"><strong>⚙</strong>Ajustes</button>
+</nav>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let locationData={name:"Valencia",lat:39.4699,lon:-0.3763},forecastData=null,radarFrames=[],radarLayer=null,radarTimer=null,radarPlaying=false,map=null,marker=null;
+const fmt=(n,d=1)=>Number.isFinite(Number(n))?Number(n).toLocaleString('es-ES',{maximumFractionDigits:d,minimumFractionDigits:0}):"—";
+const timeLabel=s=>s?new Date(s).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}):"—";
+function setText(id,t){$(id).textContent=t}
+function weatherType(mm){if(mm<=0.05)return ["Sin lluvia","Sin precipitación prevista"];let rate=mm*4;if(rate<2.5)return ["Débil","Lluvia débil según el modelo"];if(rate<10)return ["Moderada","Lluvia moderada según el modelo"];if(rate<30)return ["Fuerte","Lluvia fuerte: sigue la evolución"];if(rate<50)return ["Muy fuerte","Lluvia muy fuerte estimada"];return ["Torrencial","Intensidad muy alta estimada"]}
+function getRateFromHourly(mm){return Math.max(0,Number(mm)||0)}
+function sum(arr,start,end){return arr.slice(start,end).reduce((a,v)=>a+(Number(v)||0),0)}
+async function loadWeather(){
+ setText("weatherStatus","Actualizando…");setText("rainDescription","Consultando Open-Meteo…");
+ const url=`https://api.open-meteo.com/v1/forecast?latitude=${locationData.lat}&longitude=${locationData.lon}&current=temperature_2m,relative_humidity_2m,precipitation,rain,showers,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,pressure_msl&hourly=precipitation,precipitation_probability,rain,temperature_2m,wind_speed_10m,wind_gusts_10m,relative_humidity_2m&past_days=1&forecast_days=2&timezone=auto`;
+ try{
+  const r=await fetch(url);if(!r.ok)throw new Error("HTTP "+r.status);const d=await r.json();forecastData=d;
+  const now=d.current, h=d.hourly, times=h.time.map(t=>new Date(t)), currentTime=new Date(now.time);
+  let idx=0;for(let i=0;i<times.length;i++)if(times[i]<=currentTime)idx=i;
+  const currentRate=Math.max(0,Number(h.precipitation[idx]??now.precipitation??0));
+  setText("currentRate",fmt(currentRate));let desc=weatherType(currentRate)[0];setText("weatherStatus",desc);setText("rainDescription",`Precipitación actual del modelo: ${fmt(now.precipitation,1)} mm · código meteorológico ${now.weather_code??"—"}`);
+  setText("updatedAt",new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}));
+  setText("temp",fmt(now.temperature_2m)+"°");setText("humidity",fmt(now.relative_humidity_2m,0)+"%");setText("wind",fmt(now.wind_speed_10m,0)+" km/h");setText("gust",fmt(now.wind_gusts_10m,0)+" km/h");setText("winddir",fmt(now.wind_direction_10m,0)+"°");
+  const probs=h.precipitation_probability||[];setText("prob",(probs[idx]??"—")+"%");
+  // Historical model estimates: sums of hourly precipitation values before the current time.
+  const histStart=Math.max(0,idx-24);setText("acc1",fmt(sum(h.precipitation,Math.max(0,idx-1),idx+1)));setText("acc3",fmt(sum(h.precipitation,Math.max(0,idx-3),idx+1)));setText("acc6",fmt(sum(h.precipitation,Math.max(0,idx-6),idx+1)));setText("acc24",fmt(sum(h.precipitation,histStart,idx+1)));
+  const future=h.precipitation.slice(idx+1);const cum=(mins)=>{let n=Math.max(1,Math.ceil(mins/60));return sum(future,0,n)};
+  // Hourly model cannot resolve true 15-minute rainfall; short windows are explicitly labelled as proportional estimates.
+  const hour0=Number(future[0]||0),hour1=Number(future[1]||0);
+  setText("next15",`${fmt(hour0*.25)} mm`);setText("next30",`${fmt(hour0*.5)} mm`);setText("next60",`${fmt(hour0)} mm`);setText("next120",`${fmt(hour0+hour1)} mm`);
+  setText("f3",fmt(sum(future,0,3)));setText("f6",fmt(sum(future,0,6)));setText("f12",fmt(sum(future,0,12)));setText("f24",fmt(sum(future,0,24)));
+  renderChart(h,idx);renderHourly(h,idx);renderStorms(now,h,idx);
+  setText("locationMsg",`Ubicación seleccionada: ${locationData.name} (${locationData.lat.toFixed(3)}, ${locationData.lon.toFixed(3)}).`);
+ }catch(e){setText("weatherStatus","Sin conexión");setText("rainDescription","No se han podido cargar datos meteorológicos. Comprueba la conexión e inténtalo de nuevo.");console.error(e)}
+}
+function renderChart(h,idx){const labels=[],vals=[];for(let i=idx;i<Math.min(idx+12,h.time.length);i++){labels.push(timeLabel(h.time[i]));vals.push(Number(h.precipitation[i]||0))}
+ const max=Math.max(.1,...vals);$("rainChart").innerHTML=vals.map((v,i)=>`<div class="barcol"><b>${fmt(v,1)}</b><div class="bar" style="height:${Math.max(2,v/max*78)}px"></div><span>${labels[i]}</span></div>`).join("");
+}
+function renderHourly(h,idx){let out="";for(let i=idx;i<Math.min(idx+24,h.time.length);i++){let p=h.precipitation_probability?.[i];out+=`<div class="frow"><span>${timeLabel(h.time[i])}</span><span>${fmt(h.precipitation[i],1)} mm · ${p??"—"}% prob.</span><span class="pill">${Number(h.precipitation[i]||0)>.1?"🌧️":"—"}</span></div>`} $("hourlyList").innerHTML=out}
+function renderStorms(now,h,idx){const p=(h.precipitation_probability||[]).slice(idx,idx+3),mm=(h.precipitation||[]).slice(idx,idx+3);const maxp=Math.max(0,...p),maxmm=Math.max(0,...mm);let msg=maxmm>=10?"El modelo prevé una hora con acumulación elevada. Consulta el radar y los avisos oficiales.":maxp>=50?"Hay probabilidad de precipitación en las próximas horas, pero no se confirma una tormenta cercana.":"No se detecta una señal fuerte de lluvia en la previsión inmediata consultada.";setText("stormSummary",msg);$("stormDetails").innerHTML=`<div class="frow"><span>🌧️</span><span>Máxima precipitación horaria prevista (3 h)</span><span class="pill">${fmt(maxmm)} mm</span></div><div class="frow"><span>☔</span><span>Máxima probabilidad (3 h)</span><span class="pill">${fmt(maxp,0)}%</span></div><div class="frow"><span>⚡</span><span>Actividad eléctrica</span><span class="pill">Sin dato directo</span></div><div class="frow"><span>🧊</span><span>Granizo</span><span class="pill">Sin dato directo</span></div>`}
+function initMap(){if(map)return;map=L.map('map',{zoomControl:false}).setView([locationData.lat,locationData.lon],8);L.control.zoom({position:'topright'}).addTo(map);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);marker=L.marker([locationData.lat,locationData.lon]).addTo(map).bindPopup(locationData.name);loadRadar();setTimeout(()=>map.invalidateSize(),250)}
+async function loadRadar(){try{const r=await fetch('https://api.rainviewer.com/public/weather-maps.json');if(!r.ok)throw new Error('Radar HTTP '+r.status);const d=await r.json();radarFrames=(d.radar?.past||[]).concat(d.radar?.now?[d.radar.now]:[]);if(!radarFrames.length)throw new Error('No hay frames de radar');const slider=$("radarSlider");slider.max=radarFrames.length-1;slider.value=radarFrames.length-1;showRadarFrame(Number(slider.value));setText("radarTime","Radar actualizado: "+new Date((d.generated||Date.now()/1000)*1000).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}));}catch(e){setText("radarTime","No se ha podido cargar el radar. Prueba más tarde.");console.error(e)}}
+function showRadarFrame(i){if(!radarFrames.length||!map)return;i=Math.max(0,Math.min(radarFrames.length-1,i));$("radarSlider").value=i;const f=radarFrames[i];const url=`https://tilecache.rainviewer.com${f.path}/256/{z}/{x}/{y}/2/1_1.png`;if(radarLayer)map.removeLayer(radarLayer);radarLayer=L.tileLayer(url,{opacity:.72,zIndex:500,attribution:'Radar © RainViewer'}).addTo(map);setText("frameLabel",new Date(f.time*1000).toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}));}
+function stopRadar(){radarPlaying=false;clearInterval(radarTimer);$("playRadar").textContent="▶ Reproducir"}
+function startRadar(){if(!radarFrames.length)return;if(radarPlaying){stopRadar();return}radarPlaying=true;$("playRadar").textContent="Ⅱ Pausar";radarTimer=setInterval(()=>{let n=Number($("radarSlider").value)+1;if(n>=radarFrames.length)n=0;showRadarFrame(n)},800)}
+function setLocation(name,lat,lon){locationData={name,lat:Number(lat),lon:Number(lon)};setText("placeLabel",name);if(map){map.setView([lat,lon],9);marker.setLatLng([lat,lon]).setPopupContent(name);loadRadar()}loadWeather()}
+async function geocode(q){const r=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=5&language=es&format=json`);const d=await r.json();if(!d.results?.length)throw new Error("No se encontró esa localidad");return d.results[0]}
+document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===b));document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===b.dataset.page));if(b.dataset.page==="radar"){initMap();setTimeout(()=>map.invalidateSize(),100)}if(b.dataset.page==="settings")renderFavorites()}));
+$("refreshBtn").onclick=()=>{loadWeather();if(map)loadRadar()};$("refreshAll").onclick=()=>{loadWeather();loadRadar()};$("locateBtn").onclick=$("useLocation").onclick=()=>{if(!navigator.geolocation){setText("locationMsg","Este navegador no permite geolocalización.");return}navigator.geolocation.getCurrentPosition(p=>setLocation("Mi ubicación",p.coords.latitude,p.coords.longitude),()=>setText("locationMsg","No se ha podido obtener la ubicación. Comprueba los permisos."),{enableHighAccuracy:true,timeout:12000})};
+$("searchCity").onclick=async()=>{const q=$("cityInput").value.trim();if(!q)return;try{const g=await geocode(q);setLocation(`${g.name}${g.admin1?", "+g.admin1:""}`,g.latitude,g.longitude);setText("locationMsg",`Localidad encontrada: ${g.name}.`)}catch(e){setText("locationMsg",e.message)}};
+$("resetPlace").onclick=()=>setLocation("Valencia",39.4699,-0.3763);
+$("radarSlider").oninput=e=>showRadarFrame(Number(e.target.value));$("prevFrame").onclick=()=>showRadarFrame(Number($("radarSlider").value)-1);$("nextFrame").onclick=()=>showRadarFrame(Number($("radarSlider").value)+1);$("playRadar").onclick=startRadar;
+function getFavs(){try{return JSON.parse(localStorage.getItem("lluviaFavs")||"[]")}catch{return []}}
+function renderFavorites(){const f=getFavs();$("favorites").innerHTML=f.length?f.map((x,i)=>`<div class="frow"><span>📍</span><span>${x.name}</span><button class="btn secondary" data-fav="${i}" style="padding:7px 10px">Abrir</button></div>`).join(""):'<p class="tiny">Todavía no has guardado ubicaciones.</p>';document.querySelectorAll("[data-fav]").forEach(b=>b.onclick=()=>{const x=getFavs()[Number(b.dataset.fav)];setLocation(x.name,x.lat,x.lon)})}
+$("saveFavorite").onclick=()=>{let f=getFavs();if(!f.some(x=>x.name===locationData.name&&x.lat===locationData.lat))f.push(locationData);localStorage.setItem("lluviaFavs",JSON.stringify(f));renderFavorites()};
+["alert10","alert20","alert30","alert50"].forEach(id=>{const el=$(id);el.checked=localStorage.getItem(id)==="true";el.onchange=()=>localStorage.setItem(id,el.checked?"true":"false")});
+loadWeather();
+</script>
+</body>
+</html>
